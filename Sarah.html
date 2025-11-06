@@ -47,7 +47,7 @@
     <div id="app-container" class="w-full max-w-xl bg-white p-6 md:p-8 rounded-3xl shadow-2xl text-center">
 
         <!-- Header -->
-        <h1 id="header-title" class="text-3xl md:text-4xl font-extrabold text-indigo-700 mb-2">Nishi Food Review</h1>
+        <h1 id="header-title" class="text-3xl md:text-4xl font-extrabold text-indigo-700 mb-2">Sarah's Secret Puzzle</h1>
         <p id="header-subtitle" class="text-gray-500 mb-6 md:mb-8">Enter the secret code to unlock the challenge!</p>
 
         <!-- Step 1: Input Stage (NOW including Password) -->
@@ -68,7 +68,7 @@
                 </label>
                 <!-- Email Input -->
                 <label class="block">
-                    <span class="text-sm font-medium text-gray-700">Your Email</span>
+                    <span class="text-sm font-medium text-gray-700">Your Email </span>
                     <input type="email" id="recipient-email" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="your.email@example.com">
                 </label>
             </div>
@@ -100,10 +100,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
             <h2 class="text-3xl font-extrabold text-pink-600 mb-6">You Solved Them All!</h2>
-            <p class="text-lg text-gray-700 mb-8">You've unlocked the final message. I can't wait for the many memories we will create together...</p>
+            <p class="text-lg text-gray-700 mb-8">You've unlocked the final message. I have something special to ask you...</p>
 
-            <button id="send-email-button" onclick="sendProposalEmail()" class="inline-block py-4 px-8 bg-pink-500 text-white text-xl font-bold rounded-full shadow-2xl transform hover:scale-105 transition duration-300 ease-in-out">
-                Send The Question!
+            <button id="To many more memories" onclick="sendProposalEmail()" class="inline-block py-4 px-8 bg-pink-500 text-white text-xl font-bold rounded-full shadow-2xl transform hover:scale-105 transition duration-300 ease-in-out">
+                Ethans Girlfriend!
             </button>
         </div>
 
@@ -115,16 +115,16 @@
     <script>
         // --- CONFIGURATION: PRELOAD YOUR PHOTOS HERE ---
         // 1. **CHANGE THIS PASSWORD** to your secret code! (Case-insensitive)
-        const SECRET_PASSWORD = "Wifey";
+        const SECRET_PASSWORD = "Tannedmalay";
 
         // 2. REPLACE THESE PLACEHOLDER URLs with the direct links to your four images.
-        const PRELOADED_IMAGE_URLS = [
-           https://drive.google.com/uc?export=view&id=1BI3Pe7HiN3WqUa5zGS6HoDppul2hxxgi,
-            'https://placehold.co/800x800/10B981/ffffff?text=Puzzle+2',
-            'https://placehold.co/800x800/F59E0B/ffffff?text=Puzzle+3',
-            'https://placehold.co/800x800/EF4444/ffffff?text=Puzzle+4',
-             
-        ];
+       const PRELOADED_IMAGE_URLS = [
+    const PRELOADED_IMAGE_URLS = [
+  './Puzzle+1.jpg',
+  './Puzzle+2.jpg',
+  './Puzzle+3.jpg',
+  './Puzzle+4.jpg'
+];
         // --------------------------------------------------
 
         // Global Game Constants
@@ -328,7 +328,7 @@
         window.sendProposalEmail = function() {
             // Custom Message: "May I be your boyfriend Sarah"
             const finalQuestion = `May I be your boyfriend ${recipientName}`;
-            const subject = encodeURIComponent("I have something special to ask you...");
+            const subject = encodeURIComponent("Just like the last puzzle photo I Ethan , have something special to ask you... May you face the code developer Ethan");
             const body = encodeURIComponent(finalQuestion);
 
             const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
