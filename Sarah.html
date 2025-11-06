@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nishi review game</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the puzzle tiles and 3x3 grid */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc; /* light gray background */
+        }
+        .puzzle-container {
+            width: 90vmin; /* Responsive size based on viewport */
+            height: 90vmin;
+            max-width: 500px;
+            max-height: 500px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3x3 Grid */
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2px; /* Smaller gap for 3x3 */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 5px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            background-color: #1f2937; /* Dark background for the puzzle gap */
+        }
+        .puzzle-tile {
+            background-size: 300% 300%; /* Important for showing only the 1/9th quadrant */
+            background-position: var(--bg-pos-x) var(--bg-pos-y);
+            transition: transform 0.3s ease-out, box-shadow 0.1s;
+            cursor: pointer;
+            touch-action: manipulation; /* Prevents unwanted browser behavior on touch */
+            transform-origin: center center;
+            border-radius: 0.25rem; /* Slightly smaller radius for more tiles */
+            border: 2px solid #1f2937; /* Match the gap color */
+        }
+        .puzzle-tile:active {
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-gray-100">
+
+    <div id="app-container" class="w-full max-w-xl bg-white p-6 md:p-8 rounded-3xl shadow-2xl text-center">
+
+        <!-- Header -->
+        <h1 id="header-title" class="text-3xl md:text-4xl font-extrabold text-indigo-700 mb-2">Nishi Food Review</h1>
+        <p id="header-subtitle" class="text-gray-500 mb-6 md:mb-8">Enter the secret code to unlock the challenge!</p>
+
+        <!-- Step 1: Input Stage (NOW including Password) -->
+        <div id="input-stage">
+            <h2 class="text-xl font-bold mb-4 text-gray-700">Step 1: Unlock and Set Up</h2>
+
+            <div class="space-y-4 mb-6 text-left">
+                <!-- NEW: Password Input -->
+                <label class="block">
+                    <span class="text-sm font-medium text-gray-700">Secret Code to Unlock</span>
+                    <input type="password" id="secret-code" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="Enter the code here">
+                </label>
+
+                <!-- Name Input -->
+                <label class="block">
+                    <span class="text-sm font-medium text-gray-700">Your Name </span>
+                    <input type="text" id="recipient-name" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="e.g., Sarah">
+                </label>
+                <!-- Email Input -->
+                <label class="block">
+                    <span class="text-sm font-medium text-gray-700">Your Email</span>
+                    <input type="email" id="recipient-email" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="your.email@example.com">
+                </label>
+            </div>
+
+            <button id="start-puzzle-button" onclick="validateAndStart()" class="w-full py-3 px-6 bg-green-500 text-white font-semibold rounded-xl shadow-lg hover:bg-green-600 transition duration-200">
+                Start The Puzzles
+            </button>
+        </div>
+
+        <!-- Step 2: Puzzle Game (Game State) -->
+        <div id="game-stage" class="hidden">
+            <h2 id="puzzle-title" class="text-2xl font-bold text-indigo-600 mb-2">Puzzle 1 of 4 (3x3 Grid)</h2>
+            <p class="text-gray-500 mb-6">Click/tap the 9 tiles to rotate them and solve the picture!</p>
+
+            <div class="flex justify-center mb-8">
+                <div id="puzzle-view" class="puzzle-container">
+                    <!-- 9 Puzzle tiles will be generated here -->
+                </div>
+            </div>
+
+            <button id="next-puzzle-button" onclick="nextPuzzle()" class="w-full py-3 px-6 bg-indigo-500 text-white font-semibold rounded-xl shadow-lg hover:bg-indigo-600 transition duration-200 opacity-50 cursor-not-allowed" disabled>
+                Next Puzzle
+            </button>
+        </div>
+
+        <!-- Step 3: Final Reveal (Complete State) -->
+        <div id="final-stage" class="hidden p-8 bg-pink-50 rounded-2xl border-4 border-pink-400">
+            <svg class="mx-auto w-16 h-16 text-pink-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            <h2 class="text-3xl font-extrabold text-pink-600 mb-6">You Solved Them All!</h2>
+            <p class="text-lg text-gray-700 mb-8">You've unlocked the final message. I can't wait for the many memories we will create together...</p>
+
+            <button id="send-email-button" onclick="sendProposalEmail()" class="inline-block py-4 px-8 bg-pink-500 text-white text-xl font-bold rounded-full shadow-2xl transform hover:scale-105 transition duration-300 ease-in-out">
+                Send The Question!
+            </button>
+        </div>
+
+        <!-- Modal/Notification Area -->
+        <div id="notification-bar" class="fixed bottom-0 left-0 right-0 p-4 bg-red-500 text-white font-semibold hidden"></div>
+
+    </div>
+
+    <script>
+        // --- CONFIGURATION: PRELOAD YOUR PHOTOS HERE ---
+        // 1. **CHANGE THIS PASSWORD** to your secret code! (Case-insensitive)
+        const SECRET_PASSWORD = "Wifey";
+
+        // 2. REPLACE THESE PLACEHOLDER URLs with the direct links to your four images.
+        const PRELOADED_IMAGE_URLS = [
+           https://drive.google.com/uc?export=view&id=1BI3Pe7HiN3WqUa5zGS6HoDppul2hxxgi,
+            'https://placehold.co/800x800/10B981/ffffff?text=Puzzle+2',
+            'https://placehold.co/800x800/F59E0B/ffffff?text=Puzzle+3',
+            'https://placehold.co/800x800/EF4444/ffffff?text=Puzzle+4',
+             
+        ];
+        // --------------------------------------------------
+
+        // Global Game Constants
+        const PHOTO_COUNT = PRELOADED_IMAGE_URLS.length;
+        const GRID_SIZE = 3; // 3x3 puzzle
+        const TILE_COUNT = GRID_SIZE * GRID_SIZE;
+
+        // Global Game State
+        let gameData = [];
+        let currentPuzzleIndex = 0;
+        let tileRotations = []; // Array of size 9
+
+        let recipientName = '';
+        let recipientEmail = '';
+
+        // DOM Elements
+        const inputStage = document.getElementById('input-stage');
+        const gameStage = document.getElementById('game-stage');
+        const finalStage = document.getElementById('final-stage');
+        const puzzleView = document.getElementById('puzzle-view');
+        const puzzleTitle = document.getElementById('puzzle-title');
+        const nextButton = document.getElementById('next-puzzle-button');
+        const notificationBar = document.getElementById('notification-bar');
+        const nameInput = document.getElementById('recipient-name');
+        const emailInput = document.getElementById('recipient-email');
+        const passwordInput = document.getElementById('secret-code'); // New
+
+        // --- Utility Functions ---
+
+        /**
+         * Displays a temporary notification bar at the bottom.
+         */
+        function showNotification(message, bgColor = 'bg-red-500') {
+            notificationBar.textContent = message;
+            notificationBar.className = `fixed bottom-0 left-0 right-0 p-4 text-white font-semibold transition-all duration-300 ${bgColor}`;
+            notificationBar.style.display = 'block';
+            setTimeout(() => {
+                notificationBar.style.display = 'none';
+            }, 3000);
+        }
+
+        // --- Core Game Logic ---
+
+        /**
+         * Validates password and inputs and starts the puzzle game.
+         */
+        window.validateAndStart = function() {
+            const enteredPassword = passwordInput.value.trim().toUpperCase();
+            recipientName = nameInput.value.trim();
+            recipientEmail = emailInput.value.trim();
+
+            // 1. Password Check
+            if (enteredPassword !== SECRET_PASSWORD.toUpperCase()) {
+                showNotification('Incorrect secret code. Try again!');
+                passwordInput.focus();
+                return;
+            }
+
+            // 2. Name and Email Validation
+            if (!recipientName) {
+                showNotification('Please enter a name for the final message.');
+                nameInput.focus();
+                return;
+            }
+            if (!recipientEmail || !recipientEmail.includes('@') || !recipientEmail.includes('.')) {
+                showNotification('Please enter a valid email address.');
+                emailInput.focus();
+                return;
+            }
+
+            // Capitalize the first letter of the name for the final message
+            recipientName = recipientName.charAt(0).toUpperCase() + recipientName.slice(1).toLowerCase();
+
+            // 3. Start Game
+            inputStage.classList.add('hidden');
+            gameStage.classList.remove('hidden');
+
+            currentPuzzleIndex = 0;
+            loadPuzzle(currentPuzzleIndex);
+        }
+
+        /**
+         * Initializes the game data structure.
+         */
+        function initializeGameData() {
+             // Initialize gameData structure
+            gameData = PRELOADED_IMAGE_URLS.map((url, i) => ({
+                id: i,
+                url: url,
+                solved: false
+            }));
+        }
+
+        /**
+         * Loads and renders the puzzle for the given index.
+         */
+        function loadPuzzle(index) {
+            puzzleTitle.textContent = `Puzzle ${index + 1} of ${PHOTO_COUNT} (3x3 Grid)`;
+            const imageUrl = gameData[index].url;
+
+            // 1. Reset tile rotations to a random initial state (0-3 rotations)
+            tileRotations = Array(TILE_COUNT).fill(0).map(() => Math.floor(Math.random() * 4));
+
+            // Ensure at least one tile is rotated if they all randomly start at 0
+            if (tileRotations.every(rot => rot === 0)) {
+                tileRotations[0] = 1; // Force a 90-degree rotation on the first tile
+            }
+
+            // 2. Clear previous tiles and generate 9 new ones
+            puzzleView.innerHTML = '';
+            const step = 100 / (GRID_SIZE - 1); // Percentage step (e.g., 50% for 3x3)
+
+            for (let i = 0; i < TILE_COUNT; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'puzzle-tile';
+                tile.dataset.tileId = i;
+                tile.onclick = () => rotateTile(i);
+
+                // Calculate background position for 3x3 (0%, 50%, 100% steps)
+                const col = i % GRID_SIZE;
+                const row = Math.floor(i / GRID_SIZE);
+
+                const x = `${col * step}%`;
+                const y = `${row * step}%`;
+
+                tile.style.backgroundImage = `url('${imageUrl}')`;
+                tile.style.setProperty('--bg-pos-x', x);
+                tile.style.setProperty('--bg-pos-y', y);
+                tile.style.transform = `rotate(${tileRotations[i] * 90}deg)`;
+
+                puzzleView.appendChild(tile);
+            }
+
+            // 3. Disable next button
+            nextButton.disabled = true;
+            nextButton.classList.replace('opacity-100', 'opacity-50');
+            nextButton.classList.replace('cursor-pointer', 'cursor-not-allowed');
+        }
+
+        /**
+         * Rotates a puzzle tile by 90 degrees and checks for puzzle completion.
+         */
+        window.rotateTile = function(tileId) {
+            if (gameData[currentPuzzleIndex].solved) return;
+
+            // Increment rotation index (0 -> 1 -> 2 -> 3 -> 0)
+            tileRotations[tileId] = (tileRotations[tileId] + 1) % 4;
+
+            const tileElement = puzzleView.querySelector(`[data-tile-id="${tileId}"]`);
+            if (tileElement) {
+                // Apply visual rotation
+                tileElement.style.transform = `rotate(${tileRotations[tileId] * 90}deg)`;
+            }
+
+            checkPuzzleSolved();
+        }
+
+        /**
+         * Checks if all tiles are in the original (0 rotation) position.
+         */
+        function checkPuzzleSolved() {
+            const solved = tileRotations.every(rot => rot === 0);
+
+            if (solved && !gameData[currentPuzzleIndex].solved) {
+                gameData[currentPuzzleIndex].solved = true;
+                showNotification(`Puzzle ${currentPuzzleIndex + 1} Solved!`, 'bg-green-500');
+
+                nextButton.disabled = false;
+                nextButton.classList.replace('opacity-50', 'opacity-100');
+                nextButton.classList.replace('cursor-not-allowed', 'cursor-pointer');
+
+                // Finalize the current puzzle visually
+                puzzleView.querySelectorAll('.puzzle-tile').forEach(tile => {
+                    tile.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.8)';
+                });
+            }
+        }
+
+        /**
+         * Advances to the next puzzle or the final reveal stage.
+         */
+        window.nextPuzzle = function() {
+            if (!gameData[currentPuzzleIndex].solved) {
+                showNotification('You must solve the current puzzle first!');
+                return;
+            }
+
+            currentPuzzleIndex++;
+
+            if (currentPuzzleIndex < PHOTO_COUNT) {
+                loadPuzzle(currentPuzzleIndex);
+            } else {
+                gameStage.classList.add('hidden');
+                finalStage.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Generates and triggers the mailto link using the entered data.
+         */
+        window.sendProposalEmail = function() {
+            // Custom Message: "May I be your boyfriend Sarah"
+            const finalQuestion = `May I be your boyfriend ${recipientName}`;
+            const subject = encodeURIComponent("I have something special to ask you...");
+            const body = encodeURIComponent(finalQuestion);
+
+            const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
+
+            // Use a temporary link to trigger the mailto link without navigating away
+            const tempLink = document.createElement('a');
+            tempLink.href = mailtoLink;
+            tempLink.target = '_blank';
+            tempLink.style.display = 'none';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+
+            showNotification(`Email link generated for ${recipientName}!`, 'bg-pink-500');
+            document.getElementById('send-email-button').disabled = true;
+        }
+
+
+        // --- Initialization ---
+        initializeGameData();
+    </script>
+</body>
+</html>
